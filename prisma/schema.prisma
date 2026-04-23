@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum IncomeFrequency {
+  daily
+  weekly
+  monthly
+  irregular
+}
+
+enum DecisionStatus {
+  approved
+  approved_with_risk
+  denied
+}
+
+model User {
+  id            String          @id @default(uuid()) @db.Uuid
+  name          String
+  email         String          @unique
+  cpf           String          @unique
+  createdAt     DateTime        @default(now()) @map("created_at")
+  financialData FinancialData[]
+  scores        Score[]
+  decisions     Decision[]
+
+  @@map("users")
+}
+
+model FinancialData {
+  id              String          @id @default(uuid()) @db.Uuid
+  userId          String          @map("user_id") @db.Uuid
+  referenceMonth  DateTime        @map("reference_month") @db.Date
+  monthlyIncome   Decimal         @map("monthly_income") @db.Decimal(12, 2)
+  incomeFrequency IncomeFrequency @map("income_frequency")
+  monthlyExpenses Decimal         @map("monthly_expenses") @db.Decimal(12, 2)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, referenceMonth])
+  @@index([userId])
+  @@index([referenceMonth])
+  @@map("financial_data")
+}
+
+model Score {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  score     Int
+  reason    String
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  decisions Decision[]
+
+  @@index([userId])
+  @@map("scores")
+}
+
+model Decision {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @map("user_id") @db.Uuid
+  scoreId     String         @map("score_id") @db.Uuid
+  status      DecisionStatus
+  creditLimit Decimal        @map("credit_limit") @db.Decimal(12, 2)
+  reason      String
+  createdAt   DateTime       @default(now()) @map("created_at")
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score       Score          @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([scoreId])
+  @@map("decisions")
+}
