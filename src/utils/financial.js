@@ -19,49 +19,33 @@ function toNumber(value) {
   return numberValue;
 }
 
-function calculateScore({ monthlyIncome, monthlyExpenses, incomeFrequency }) {
-  let score = 500;
+function calculateScore({ monthlyIncome, monthlyExpenses }) {
+  let score = 0;
   const reasons = [];
 
-  const incomeBonus = Math.min(300, Math.max(0, Math.floor((monthlyIncome / 3000) * 300)));
-  score += incomeBonus;
-
-  if (incomeBonus > 0) {
-    reasons.push(`Renda mensal contribuiu com +${incomeBonus} pontos`);
-  } else {
-    reasons.push("Renda mensal nao adicionou pontos de bonus");
+  if (monthlyIncome >= 1780) {
+    score += 500;
+    reasons.push("Renda alta (>= 1780/mes) adicionou +500 pontos");
   }
 
-  if (incomeFrequency === "daily") {
-    score += 200;
-    reasons.push("Frequencia de renda diaria adicionou +200 pontos");
+  if (monthlyIncome >= 1621) {
+    score += 300;
+    reasons.push("Renda frequente (>= 1621/mes) adicionou +300 pontos");
   }
 
-  if (incomeFrequency === "weekly") {
-    score += 130;
-    reasons.push("Frequencia de renda semanal adicionou +130 pontos");
+  if (monthlyExpenses <= 1000) {
+    score += 300;
+    reasons.push("Gastos controlados (<= 1000/mes) adicionaram +300 pontos");
   }
 
-  if (incomeFrequency === "monthly") {
-    score += 60;
-    reasons.push("Frequencia de renda mensal adicionou +60 pontos");
+  const expenseToIncomeRatio = monthlyIncome > 0 ? monthlyExpenses / monthlyIncome : 0;
+  if (expenseToIncomeRatio >= 0.9) {
+    score += 150;
+    reasons.push("Gastos altos (>= 90% da renda) adicionaram +150 pontos");
   }
 
-  if (incomeFrequency === "irregular") {
-    score -= 150;
-    reasons.push("Frequencia de renda irregular reduziu -150 pontos");
-  }
-
-  const ratio = monthlyIncome > 0 ? monthlyExpenses / monthlyIncome : 999;
-
-  if (ratio < 0.5) {
-    score += 200;
-    reasons.push("Despesas abaixo de 50% da renda adicionaram +200 pontos");
-  }
-
-  if (ratio > 1) {
-    score -= 200;
-    reasons.push("Despesas acima de 100% da renda reduziram -200 pontos");
+  if (reasons.length === 0) {
+    reasons.push("Nenhuma regra de pontuacao foi atendida");
   }
 
   const clampedScore = Math.max(0, Math.min(1000, Math.round(score)));
@@ -72,27 +56,27 @@ function calculateScore({ monthlyIncome, monthlyExpenses, incomeFrequency }) {
   };
 }
 
-function buildDecision(score) {
-  if (score >= 600) {
+function buildDecision(score, scoreReason, monthlyIncome) {
+  if (score >= 800) {
     return {
       status: "approved",
-      creditLimit: 5000,
-      reason: "Aprovado por score alto e boa consistencia financeira recente.",
+      creditLimit: monthlyIncome * 2,
+      reason: `Aprovado. ${scoreReason}`,
     };
   }
 
-  if (score >= 400) {
+  if (score >= 500) {
     return {
       status: "approved_with_risk",
-      creditLimit: 2000,
-      reason: "Aprovado com risco por score intermediario. Limite moderado aplicado.",
+      creditLimit: monthlyIncome * 0.5,
+      reason: `Aprovado com limite reduzido. ${scoreReason}`,
     };
   }
 
   return {
     status: "denied",
     creditLimit: 0,
-    reason: "Solicitacao negada por score baixo e risco financeiro elevado.",
+    reason: `Solicitacao negada. ${scoreReason}`,
   };
 }
 

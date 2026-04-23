@@ -29,14 +29,21 @@ async function createDecision(req, res, next) {
       return notFound(res, "score nao encontrado para gerar decisao");
     }
 
-    const decisionData = buildDecision(score.score);
+    const financialData = await prisma.financialData.findFirst({
+      where: { userId },
+      orderBy: { referenceMonth: "desc" },
+    });
+
+    const monthlyIncome = financialData ? Number(financialData.monthlyIncome) : 0;
+
+    const decisionData = buildDecision(score.score, score.reason, monthlyIncome);
 
     const decision = await prisma.decision.create({
       data: {
         userId,
         scoreId: score.id,
         status: decisionData.status,
-        creditLimit: decisionData.creditLimit.toFixed(2),
+        creditLimit: Math.max(0, decisionData.creditLimit).toFixed(2),
         reason: decisionData.reason,
       },
     });

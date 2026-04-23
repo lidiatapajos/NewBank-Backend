@@ -45,7 +45,6 @@ async function createScore(req, res, next) {
     const { score, reason } = calculateScore({
       monthlyIncome: Number(financialData.monthlyIncome),
       monthlyExpenses: Number(financialData.monthlyExpenses),
-      incomeFrequency: financialData.incomeFrequency,
     });
 
     const createdScore = await prisma.score.create({
