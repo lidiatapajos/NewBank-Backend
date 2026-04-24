@@ -6,6 +6,7 @@ Backend MVP para analise de credito com base em formulario mensal.
 
 - Node.js 20+
 - PostgreSQL
+- Docker (opcional, para deploy)
 
 ## Setup
 
@@ -46,6 +47,45 @@ As migrations existentes incluem a adicao opcional de `device_id` em `users`.
 ```bash
 npm run dev
 ```
+
+## Docker + Portainer Stack + Traefik
+
+Foram adicionados os arquivos `Dockerfile`, `.dockerignore` e `docker-compose.yml` para deploy com Portainer (Docker local/standalone) usando Traefik.
+
+### Como funciona
+
+- O `docker-compose.yml` sobe apenas a API (`api`).
+- O banco e externo e deve ser informado via `DATABASE_URL`/`DIRECT_URL` no Portainer.
+- O container executa `prisma migrate deploy` no startup e depois sobe a API.
+- O roteamento e feito por labels do Traefik no proprio servico.
+
+### Variaveis recomendadas no Portainer (Stack > Environment variables)
+
+Obrigatorias:
+
+- `APP_HOST` (ex: `api.seudominio.com`)
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `JWT_SECRET`
+- `ENCRYPTION_KEY`
+
+Com default no compose (opcionais):
+
+- `JWT_EXPIRES_IN` (default: `1d`)
+- `CPF_HASH_SECRET` (default: vazio, usa `ENCRYPTION_KEY`)
+- `IP_RISK_WINDOW_HOURS` (default: `24`)
+- `IP_RISK_MEDIUM_THRESHOLD` (default: `3`)
+- `IP_RISK_HIGH_THRESHOLD` (default: `5`)
+- `LOGIN_FAIL_THRESHOLD_PER_HOUR` (default: `10`)
+- `TRAEFIK_NETWORK` (default: `proxy`)
+- `TRAEFIK_ENTRYPOINT` (default: `websecure`)
+- `TRAEFIK_CERTRESOLVER` (default: `letsencrypt`)
+
+### Observacoes
+
+- A rede externa do Traefik precisa existir no host Docker (`proxy` por padrao).
+- `TRUST_PROXY` e fixado como `true` no container para funcionar corretamente atras do Traefik.
+- Em Portainer, use este `docker-compose.yml` como stack file e preencha os environments.
 
 ## Swagger
 

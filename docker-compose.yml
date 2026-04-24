@@ -1,0 +1,48 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: newbank-backend:latest
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      TRUST_PROXY: "true"
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      CPF_HASH_SECRET: ${CPF_HASH_SECRET:-}
+      IP_RISK_WINDOW_HOURS: ${IP_RISK_WINDOW_HOURS:-24}
+      IP_RISK_MEDIUM_THRESHOLD: ${IP_RISK_MEDIUM_THRESHOLD:-3}
+      IP_RISK_HIGH_THRESHOLD: ${IP_RISK_HIGH_THRESHOLD:-5}
+      LOGIN_FAIL_THRESHOLD_PER_HOUR: ${LOGIN_FAIL_THRESHOLD_PER_HOUR:-10}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${TRAEFIK_NETWORK:-proxy}
+      traefik.http.routers.newbank-backend.rule: Host(`${APP_HOST}`)
+      traefik.http.routers.newbank-backend.entrypoints: ${TRAEFIK_ENTRYPOINT:-websecure}
+      traefik.http.routers.newbank-backend.tls: "true"
+      traefik.http.routers.newbank-backend.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      traefik.http.services.newbank-backend.loadbalancer.server.port: "3000"
+
+networks:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK:-proxy}
