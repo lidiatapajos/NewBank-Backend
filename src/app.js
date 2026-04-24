@@ -38,14 +38,15 @@ app.get("/openapi.json", (_req, res) => {
   res.status(200).json(swaggerSpec);
 });
 
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 app.use("/auth", authRateLimit, authRoutes);
 app.use("/users", usersRoutes);
 app.use("/financial-data", financialDataRoutes);
 app.use("/history", historyRoutes);
 app.use("/scores", scoresRoutes);
 app.use("/decisions", decisionsRoutes);
+
+app.use("/", swaggerUi.serve);
+app.get("/", swaggerUi.setup(swaggerSpec));
 
 app.use((err, _req, res, _next) => {
   console.error(err);

@@ -95,7 +95,7 @@ Com default no compose (opcionais):
 
 ## Swagger
 
-- UI: `GET /docs`
+- UI: `GET /`
 - JSON: `GET /openapi.json`
 
 ## Endpoints principais
