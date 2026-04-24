@@ -62,6 +62,7 @@ Foram adicionados os arquivos `Dockerfile`, `.dockerignore` e `docker-compose.ym
 - O banco e externo e deve ser informado via `DATABASE_URL`/`DIRECT_URL` no Portainer.
 - O container executa `prisma migrate deploy` no startup e depois sobe a API.
 - O roteamento e feito por labels do Traefik no proprio servico.
+- A imagem instala `openssl` para compatibilidade do Prisma em runtime.
 
 ### Variaveis recomendadas no Portainer (Stack > Environment variables)
 
