@@ -22,6 +22,7 @@ npm install
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/newbank"
 DIRECT_URL="postgresql://postgres:postgres@localhost:5432/newbank"
 PORT=3000
+APP_HOST="api.seudominio.com"
 JWT_SECRET="troque-por-um-segredo-forte"
 JWT_EXPIRES_IN="1d"
 ENCRYPTION_KEY="troque-por-uma-chave-forte"
@@ -31,6 +32,9 @@ IP_RISK_MEDIUM_THRESHOLD=3
 IP_RISK_HIGH_THRESHOLD=5
 LOGIN_FAIL_THRESHOLD_PER_HOUR=10
 TRUST_PROXY=false
+TRAEFIK_NETWORK=proxy
+TRAEFIK_ENTRYPOINT=websecure
+TRAEFIK_CERTRESOLVER=letsencrypt
 ```
 
 3. Rode migration e gere cliente Prisma:
