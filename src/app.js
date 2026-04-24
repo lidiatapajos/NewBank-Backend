@@ -14,6 +14,15 @@ const { tooManyRequests } = require("./utils/http");
 
 const app = express();
 
+const buildServerUrl = (req) => {
+  const forwardedProto = req.get("x-forwarded-proto");
+  const forwardedHost = req.get("x-forwarded-host");
+  const proto = (forwardedProto || req.protocol || "http").split(",")[0].trim();
+  const host = (forwardedHost || req.get("host") || "localhost:3000").split(",")[0].trim();
+
+  return `${proto}://${host}`;
+};
+
 if (process.env.TRUST_PROXY === "true") {
   app.set("trust proxy", 1);
 }
@@ -35,7 +44,17 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/openapi.json", (_req, res) => {
-  res.status(200).json(swaggerSpec);
+  const serverUrl = buildServerUrl(_req);
+
+  res.status(200).json({
+    ...swaggerSpec,
+    servers: [
+      {
+        url: serverUrl,
+        description: "Current",
+      },
+    ],
+  });
 });
 
 app.use("/auth", authRateLimit, authRoutes);
@@ -46,7 +65,14 @@ app.use("/scores", scoresRoutes);
 app.use("/decisions", decisionsRoutes);
 
 app.use("/", swaggerUi.serve);
-app.get("/", swaggerUi.setup(swaggerSpec));
+app.get(
+  "/",
+  swaggerUi.setup(null, {
+    swaggerOptions: {
+      url: "/openapi.json",
+    },
+  }),
+);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
