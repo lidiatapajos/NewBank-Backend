@@ -8,7 +8,7 @@
     "dev": "node --watch server.js",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev",
-    "test": "echo \"No tests configured\""
+    "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -18,12 +18,23 @@
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express-rate-limit": "^8.1.0",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.17.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFiles": [
+      "<rootDir>/tests/setup/env.js"
+    ],
+    "clearMocks": true
   }
 }

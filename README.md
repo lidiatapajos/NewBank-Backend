@@ -114,6 +114,7 @@ Com default no compose (opcionais):
 ## Seguranca e auditoria
 
 - Senhas sao armazenadas com hash (`bcrypt`).
+- No `POST /auth/login`, quando `passwordEncypted=true` (ou `passwordEncrypted=true`), o campo `password` e comparado diretamente com `passwordHash` salvo no banco.
 - CPF e protegido em repouso com criptografia e hash deterministico para unicidade.
 - Todo login gera evento em `login_events` com IP e resultado.
 - IPs sao associados por usuario em `user_ips` para monitoramento.

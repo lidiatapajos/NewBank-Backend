@@ -108,7 +108,9 @@ async function login(req, res, next) {
   const userAgent = req.headers["user-agent"] || null;
 
   try {
-    const { email, password } = req.body;
+    const { email, password, passwordEncypted, passwordEncrypted } = req.body;
+    const isPasswordEncrypted =
+      passwordEncypted === true || passwordEncrypted === true;
 
     if (!email || !password) {
       return badRequest(res, "email e password sao obrigatorios");
@@ -134,7 +136,10 @@ async function login(req, res, next) {
       return unauthorized(res, "credenciais invalidas");
     }
 
-    const isPasswordValid = await comparePassword(password, user.passwordHash);
+    const isPasswordValid = isPasswordEncrypted
+      ? String(password) === String(user.passwordHash || "")
+      : await comparePassword(password, user.passwordHash);
+
     if (!isPasswordValid) {
       await prisma.loginEvent.create({
         data: {

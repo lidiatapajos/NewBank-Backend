@@ -41,6 +41,14 @@ const router = express.Router();
  *           format: email
  *         password:
  *           type: string
+ *         passwordEncypted:
+ *           type: boolean
+ *           default: false
+ *           description: Quando true, o campo password deve conter o hash salvo no banco e a validacao e por igualdade direta.
+ *         passwordEncrypted:
+ *           type: boolean
+ *           default: false
+ *           description: Alias de passwordEncypted.
  *     AuthUser:
  *       type: object
  *       properties:
