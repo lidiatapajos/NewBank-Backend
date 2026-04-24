@@ -21,18 +21,63 @@ enum DecisionStatus {
   denied
 }
 
+enum RiskLevel {
+  low
+  medium
+  high
+}
+
 model User {
   id            String          @id @default(uuid()) @db.Uuid
   name          String
   email         String          @unique
-  cpf           String          @unique
+  cpf           String?         @unique
+  cpfHash       String?         @unique @map("cpf_hash")
+  cpfEncrypted  String?         @map("cpf_encrypted")
+  passwordHash  String?         @map("password_hash")
   deviceId      String?         @map("device_id")
+  riskLevel     RiskLevel       @default(low) @map("risk_level")
+  riskFlaggedAt DateTime?       @map("risk_flagged_at")
+  lastLoginAt   DateTime?       @map("last_login_at")
   createdAt     DateTime        @default(now()) @map("created_at")
   financialData FinancialData[]
   scores        Score[]
   decisions     Decision[]
+  loginEvents   LoginEvent[]
+  userIps       UserIp[]
 
   @@map("users")
+}
+
+model LoginEvent {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String?   @map("user_id") @db.Uuid
+  ip         String
+  userAgent  String?   @map("user_agent")
+  success    Boolean
+  riskLevel  RiskLevel @default(low) @map("risk_level")
+  riskReason String?   @map("risk_reason")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([ip, createdAt])
+  @@index([userId, createdAt])
+  @@map("login_events")
+}
+
+model UserIp {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  ip         String
+  firstSeenAt DateTime @default(now()) @map("first_seen_at")
+  lastSeenAt DateTime @default(now()) @map("last_seen_at")
+  loginCount Int      @default(0) @map("login_count")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ip])
+  @@index([ip, lastSeenAt])
+  @@index([userId, lastSeenAt])
+  @@map("user_ips")
 }
 
 model FinancialData {

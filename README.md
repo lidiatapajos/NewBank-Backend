@@ -21,6 +21,15 @@ npm install
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/newbank"
 DIRECT_URL="postgresql://postgres:postgres@localhost:5432/newbank"
 PORT=3000
+JWT_SECRET="troque-por-um-segredo-forte"
+JWT_EXPIRES_IN="1d"
+ENCRYPTION_KEY="troque-por-uma-chave-forte"
+CPF_HASH_SECRET="opcional-se-parar-separar-do-encryption-key"
+IP_RISK_WINDOW_HOURS=24
+IP_RISK_MEDIUM_THRESHOLD=3
+IP_RISK_HIGH_THRESHOLD=5
+LOGIN_FAIL_THRESHOLD_PER_HOUR=10
+TRUST_PROXY=false
 ```
 
 3. Rode migration e gere cliente Prisma:
@@ -45,6 +54,9 @@ npm run dev
 
 ## Endpoints principais
 
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/me`
 - `POST /users`
 - `POST /financial-data`
 - `GET /history/:user_id`
@@ -52,6 +64,15 @@ npm run dev
 - `GET /scores/:user_id`
 - `POST /decisions`
 - `GET /decisions/:user_id`
+
+## Seguranca e auditoria
+
+- Senhas sao armazenadas com hash (`bcrypt`).
+- CPF e protegido em repouso com criptografia e hash deterministico para unicidade.
+- Todo login gera evento em `login_events` com IP e resultado.
+- IPs sao associados por usuario em `user_ips` para monitoramento.
+- Regra inicial de risco por IP: sinaliza `medium` com `>= 3` contas distintas no mesmo IP em 24h e `high` com `>= 5`.
+- Nesta fase, risco nao bloqueia login automaticamente.
 
 ## Regras de score e decisao de credito
 

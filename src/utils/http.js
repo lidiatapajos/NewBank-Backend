@@ -19,8 +19,24 @@ function conflict(res, message) {
   });
 }
 
+function unauthorized(res, message) {
+  return res.status(401).json({
+    error: "unauthorized",
+    message,
+  });
+}
+
+function tooManyRequests(res, message) {
+  return res.status(429).json({
+    error: "too_many_requests",
+    message,
+  });
+}
+
 module.exports = {
   badRequest,
   notFound,
   conflict,
+  unauthorized,
+  tooManyRequests,
 };

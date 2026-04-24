@@ -27,8 +27,12 @@ const router = express.Router();
  *         email:
  *           type: string
  *           format: email
- *         cpf:
+ *         riskLevel:
  *           type: string
+ *           enum:
+ *             - low
+ *             - medium
+ *             - high
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -38,6 +42,7 @@ const router = express.Router();
  *         - name
  *         - email
  *         - cpf
+ *         - password
  *       properties:
  *         name:
  *           type: string
@@ -49,6 +54,10 @@ const router = express.Router();
  *         cpf:
  *           type: string
  *           example: "12345678900"
+ *         password:
+ *           type: string
+ *           minLength: 8
+ *           example: "senha-super-segura"
  */
 
 /**
