@@ -4,10 +4,17 @@ services:
       context: .
       dockerfile: Dockerfile
     image: newbank-backend:latest
+    command:
+      [
+        "sh",
+        "-c",
+        "if [ \"${RUN_MIGRATIONS:-false}\" = \"true\" ]; then npx prisma migrate deploy; fi && node server.js",
+      ]
     environment:
       NODE_ENV: production
       PORT: "3000"
       TRUST_PROXY: "true"
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-false}
       DATABASE_URL: ${DATABASE_URL}
       DIRECT_URL: ${DIRECT_URL}
       JWT_SECRET: ${JWT_SECRET}

@@ -60,7 +60,7 @@ Foram adicionados os arquivos `Dockerfile`, `.dockerignore` e `docker-compose.ym
 
 - O `docker-compose.yml` sobe apenas a API (`api`).
 - O banco e externo e deve ser informado via `DATABASE_URL`/`DIRECT_URL` no Portainer.
-- O container executa `prisma migrate deploy` no startup e depois sobe a API.
+- Por padrao, o container sobe apenas a API. Migrations no startup sao opcionais via `RUN_MIGRATIONS=true`.
 - O roteamento e feito por labels do Traefik no proprio servico.
 - A imagem instala `openssl` para compatibilidade do Prisma em runtime.
 
@@ -77,6 +77,7 @@ Obrigatorias:
 Com default no compose (opcionais):
 
 - `JWT_EXPIRES_IN` (default: `1d`)
+- `RUN_MIGRATIONS` (default: `false`)
 - `CPF_HASH_SECRET` (default: vazio, usa `ENCRYPTION_KEY`)
 - `IP_RISK_WINDOW_HOURS` (default: `24`)
 - `IP_RISK_MEDIUM_THRESHOLD` (default: `3`)
